@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import {OfferModule} from './offers/offer.module';
+import {OfferModule} from './modules/offers/offer.module';
 import {TypeOrmModule} from '@nestjs/typeorm';
 
 @Module({
