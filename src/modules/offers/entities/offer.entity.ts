@@ -3,10 +3,13 @@ import {
     Column,
     PrimaryGeneratedColumn,
     ManyToOne,
+    JoinColumn,
+    OneToMany,
+    RelationId,
 } from 'typeorm';
-import {
-    OfferCategory,
-} from './offerCategory.entity';
+
+import {OfferCategory} from './offerCategory.entity';
+import {OfferPreview} from './offerPreview.entity';
 
 @Entity()
 export class Offer {
@@ -18,7 +21,19 @@ export class Offer {
         category => category.offers,
         {onDelete: 'CASCADE'},
     )
+    @JoinColumn({name: 'categoryId'})
     category: OfferCategory;
+
+    @OneToMany(
+        () => OfferPreview,
+        preview => preview.offer,
+    )
+    previews: OfferPreview[];
+
+    @Column()
+    @RelationId((offer: Offer) => offer.category)
+    categoryId: number;
+
     @Column()
     name: string;
     @Column()
