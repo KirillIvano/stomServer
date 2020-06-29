@@ -1,6 +1,7 @@
-jsconfig.json
-.vscode/
-node_modules/
-dist/
-tsconfig.tsbuildinfo
-ormconfig.json
+/jsconfig.json
+/.vscode
+/node_modules
+/dist
+/imagesHost
+/tsconfig.tsbuildinfo
+/ormconfig.json
