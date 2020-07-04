@@ -11,7 +11,7 @@ import {getInsertedId} from '~/helpers/getInsertedId';
 
 import {CreateOfferDto, UpdateOfferDto} from './dto/offers.dto';
 import {Offer} from './entities/offer.entity';
-import {CreateCategoryDto, EditCategoryDto} from './dto/category.dto';
+import {CreateCategoryDto} from './dto/category.dto';
 import {OfferCategory} from './entities/offerCategory.entity';
 
 @Injectable()
@@ -61,11 +61,10 @@ export class OfferService {
         return updatedOffer;
     }
 
-    async deleteOffer(offerId: number): Promise<boolean> {
+    async deleteOffer(offerId: number) {
         const deletionResult = await this.offerRepository.delete({id: offerId});
 
-        if (!deletionResult.affected) return false;
-        return true;
+        if (!deletionResult.affected) throw new BadRequestException('Не получилось удалить');
     }
 
     getCategories(): Promise<OfferCategory[]> {

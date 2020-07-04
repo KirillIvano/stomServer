@@ -11,6 +11,8 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 
+import {generateResponse} from '~/helpers/generateResponse';
+
 import {OfferService} from './offer.service';
 import {CreateCategoryDto, EditCategoryDto} from './dto/category.dto';
 import {CreateOfferDto, UpdateOfferDto} from './dto/offers.dto';
@@ -28,11 +30,9 @@ export class OfferController {
 
     @Post()
     async createOffer(@Body() createOfferDto: CreateOfferDto) {
-        return {
-            data: {
-                offer: await this.offerService.saveOffer(createOfferDto),
-            },
-        };
+        return generateResponse({
+            offer: await this.offerService.saveOffer(createOfferDto),
+        });
     }
 
     @Delete('/:offerId')
@@ -41,7 +41,7 @@ export class OfferController {
     ) {
         const deletionSuccess = await this.offerService.deleteOffer(offerId);
 
-        return {data: {ok: deletionSuccess}};
+        return generateResponse({ok: deletionSuccess});
     }
 
     @Put('/:offerId')
@@ -50,28 +50,28 @@ export class OfferController {
         @Param('offerId', new ParseIntPipe()) offerId: number,
         @Body() body: UpdateOfferDto,
     ) {
-        return {data: {offer: await this.offerService.updateOffer(offerId, body)}};
+        return generateResponse({offer: await this.offerService.updateOffer(offerId, body)});
     }
 
     @Get('/category/all')
     async getAllCategories() {
-        return {data: {
+        return generateResponse({
             categories: await this.offerService.getCategories(),
-        }};
+        });
     }
 
     @Post('/category')
     async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-        return {data: {
+        return generateResponse({
             category: await this.offerService.saveOfferCategory(createCategoryDto),
-        }};
+        });
     }
 
     @Delete('/category/:categoryId')
     async deleteCategory(@Param('categoryId', new ParseIntPipe()) categoryId: number) {
         const deletionSuccess = await this.offerService.deleteOfferCategory(categoryId);
 
-        return {data: {ok: deletionSuccess}};
+        return generateResponse({ok: deletionSuccess});
     }
 
     @Put('/category/:categoryId')
@@ -82,6 +82,6 @@ export class OfferController {
         const updatedCategory =
             await this.offerService.updateOfferCategory(categoryId, body.name);
 
-        return {data: {category: updatedCategory}};
+        return generateResponse({category: updatedCategory});
     }
 }
