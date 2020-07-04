@@ -4,10 +4,11 @@ import {MulterOptions} from '@nestjs/platform-express/multer/interfaces/multer-o
 
 import {generateUniqueName} from '~/helpers/generateUniqueName';
 import {getImages, saveImageName} from '~/services/images';
+import {IMAGES_PATH} from './paths';
 
 export const multerImagesOptions: MulterOptions = {
     storage: diskStorage({
-        destination: path.resolve(__dirname, '..', '..', 'imagesHost'),
+        destination: IMAGES_PATH,
         filename: (_, file, cb) => {
             const existingImages = getImages();
 
