@@ -1,33 +1,32 @@
 import {
     Entity,
+    ManyToOne,
     Column,
     PrimaryGeneratedColumn,
-    ManyToOne,
     JoinColumn,
     RelationId,
 } from 'typeorm';
-
 import {OfferCategory} from './offerCategory.entity';
 
 @Entity()
-export class Offer {
+export class CategoryPreview {
     @PrimaryGeneratedColumn()
     id: number;
 
     @ManyToOne(
         () => OfferCategory,
-        category => category.offers,
+        category => category.previews,
         {onDelete: 'CASCADE'},
     )
     @JoinColumn({name: 'categoryId'})
     category: OfferCategory;
 
     @Column()
-    @RelationId((offer: Offer) => offer.category)
+    @RelationId((preview: CategoryPreview) => preview.category)
     categoryId: number;
 
     @Column()
     name: string;
     @Column()
-    price: number;
+    image: string;
 }

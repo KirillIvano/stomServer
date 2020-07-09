@@ -1,5 +1,7 @@
 import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from 'typeorm';
+
 import {Offer} from './offer.entity';
+import {CategoryPreview} from './categoryPreview.entity';
 
 @Entity()
 export class OfferCategory {
@@ -9,9 +11,14 @@ export class OfferCategory {
     name: string;
 
     @OneToMany(
+        () => CategoryPreview,
+        preview => preview.category,
+    )
+    previews: CategoryPreview[];
+
+    @OneToMany(
         () => Offer,
         offer => offer.category,
-        {cascade: ['remove']},
     )
     offers: Offer[];
 }

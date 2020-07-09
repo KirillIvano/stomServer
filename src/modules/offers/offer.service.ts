@@ -13,12 +13,16 @@ import {CreateOfferDto, UpdateOfferDto} from './dto/offers.dto';
 import {Offer} from './entities/offer.entity';
 import {CreateCategoryDto} from './dto/category.dto';
 import {OfferCategory} from './entities/offerCategory.entity';
+import {CategoryPreview} from './entities/categoryPreview.entity';
+import {CreatePreviewDto, UpdatePreviewDto} from './dto/preview.dto';
+import {deleteImage} from '~/services/images';
 
 @Injectable()
 export class OfferService {
     constructor(
         @InjectRepository(Offer) private offerRepository: Repository<Offer>,
         @InjectRepository(OfferCategory) private offerCategoryRepository: Repository<OfferCategory>,
+        @InjectRepository(CategoryPreview) private categoryPreviewRepository: Repository<CategoryPreview>,
     ) {}
 
     async getOffersByCategory(categoryId: number) {
@@ -30,7 +34,10 @@ export class OfferService {
 
         if (!offerCategory) throw new NotFoundException('Категория не найдена');
 
-        return offerCategory.offers;
+        return {
+            name: offerCategory.name,
+            offers: offerCategory.offers,
+        };
     }
 
     async saveOffer({categoryId, ...commonInfo}: CreateOfferDto): Promise<Offer> {
@@ -95,5 +102,71 @@ export class OfferService {
         if (!updatedCategory) throw new ConflictException('Непредвиденное изменение данных');
 
         return updatedCategory;
+    }
+
+    async getCategoryPreviews(): Promise<CategoryPreview[]> {
+        const previews = await this.categoryPreviewRepository.find();
+
+        return previews;
+    }
+
+    async createCategoryPreview(data: CreatePreviewDto & {image: string}): Promise<CategoryPreview> {
+        const {categoryId} = data;
+        const category = this.offerCategoryRepository.findOne(categoryId);
+        if (!category) throw new BadRequestException('Такой категории не существует');
+
+        const preview = Object.assign(new CategoryPreview(), data);
+
+        const insertionResult = await this.categoryPreviewRepository.insert(preview);
+        const previewId = getInsertedId(insertionResult);
+
+        const createdPreview = await this.categoryPreviewRepository.findOne(previewId);
+        if (!createdPreview) throw new ConflictException('Произошло неожиданное изменение');
+
+        return createdPreview;
+    }
+
+    async updateCategoryPreview(
+        previewId: number,
+        updates: UpdatePreviewDto,
+    ): Promise<CategoryPreview> {
+        const categoryPreview = await this.categoryPreviewRepository.findOne(previewId);
+        if (!categoryPreview) throw new NotFoundException('Превью не было найдено');
+
+        const {categoryId, ...restUpdates} = updates;
+
+        if (categoryId) {
+            const category = this.offerCategoryRepository.findOne(categoryId);
+            if (!category) throw new BadRequestException('Такой категории не существует');
+
+            categoryPreview.categoryId = categoryId;
+        }
+
+        Object.assign(categoryPreview, restUpdates);
+        await this.categoryPreviewRepository.save(categoryPreview);
+
+        return categoryPreview;
+    }
+
+    async updateCategoryPreviewImage(previewId: number, imageUrl: string): Promise<CategoryPreview> {
+        const preview = await this.categoryPreviewRepository.findOne(previewId);
+        if (!preview) throw new NotFoundException('Такое превью не найдено');
+
+        preview.image = imageUrl;
+        await this.categoryPreviewRepository.save(preview);
+
+        return preview;
+    }
+
+    async deleteCategoryPreview(previewId: number) {
+        const preview = await this.categoryPreviewRepository.findOne(previewId);
+        if (!preview) throw new NotFoundException('Такой категории не найдено');
+
+        const {image} = preview;
+        deleteImage(image);
+
+        const deletionResult = await this.categoryPreviewRepository.delete(previewId);
+
+        if (!deletionResult.affected) throw new BadRequestException('Не получилось удалить');
     }
 }
