@@ -5,3 +5,4 @@
 /imagesHost
 /tsconfig.tsbuildinfo
 /ormconfig.json
+.env

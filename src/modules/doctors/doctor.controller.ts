@@ -10,12 +10,14 @@ import {
     ValidationPipe,
     UseInterceptors,
     UploadedFile,
+    UseGuards,
 } from '@nestjs/common';
 import {FileInterceptor} from '@nestjs/platform-express';
 
 import {File} from '~/entities/file';
 import {multerImagesOptions} from '~/settings/files';
 import {generateResponse} from '~/helpers/generateResponse';
+import {PasswordGuard} from '~/guards/auth.guard';
 
 import {CreateDoctorDto, UpdateDoctorInfoDto} from './dto/doctor.dto';
 import {DoctorService} from './doctor.service';
@@ -31,6 +33,7 @@ export class DoctorController {
         });
     }
 
+    @UseGuards(PasswordGuard)
     @Delete('/:doctorId')
     async deleteDoctor(@Param('doctorId', new ParseIntPipe()) doctorId: number) {
         await this.doctorService.deleteDoctor(doctorId);
@@ -38,6 +41,7 @@ export class DoctorController {
         return generateResponse({});
     }
 
+    @UseGuards(PasswordGuard)
     @Post()
     @UseInterceptors(
         FileInterceptor(
@@ -56,6 +60,7 @@ export class DoctorController {
         });
     }
 
+    @UseGuards(PasswordGuard)
     @Put('/:doctorId')
     async updateDoctorInfo(
         @Param('doctorId', new ParseIntPipe()) doctorId: number,
@@ -66,6 +71,7 @@ export class DoctorController {
         return generateResponse({doctor: updatedDoctor});
     }
 
+    @UseGuards(PasswordGuard)
     @Put('/:doctorId/image')
     @UseInterceptors(
         FileInterceptor(

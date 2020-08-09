@@ -40,6 +40,10 @@ export class OfferService {
         };
     }
 
+    getAllOffers() {
+        return this.offerRepository.find();
+    }
+
     async saveOffer({categoryId, ...commonInfo}: CreateOfferDto): Promise<Offer> {
         const dbOffer = new Offer();
         Object.assign(dbOffer, commonInfo);

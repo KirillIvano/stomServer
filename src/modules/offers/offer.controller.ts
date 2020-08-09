@@ -12,12 +12,14 @@ import {
     UseInterceptors,
     UploadedFile,
     BadRequestException,
+    UseGuards,
 } from '@nestjs/common';
 import {FileInterceptor} from '@nestjs/platform-express';
 
 import {generateResponse} from '~/helpers/generateResponse';
 import {multerImagesOptions} from '~/settings/files';
 import {File} from '~/entities/file';
+import {PasswordGuard} from '~/guards/auth.guard';
 
 import {OfferService} from './offer.service';
 import {CreateCategoryDto, EditCategoryDto} from './dto/category.dto';
@@ -28,11 +30,12 @@ import {CreatePreviewDto, UpdatePreviewDto} from './dto/preview.dto';
 export class OfferController {
     constructor(private offerService: OfferService) {}
 
-    @Get('/category/:categoryId/offers')
-    async getOffersByCategory(@Param('categoryId', new ParseIntPipe()) categoryId: number) {
-        return {data: await this.offerService.getOffersByCategory(categoryId)};
+    @Get('/all')
+    async getAllOffers() {
+        return generateResponse({offers: await this.offerService.getAllOffers(), name: 'Все'});
     }
 
+    @UseGuards(PasswordGuard)
     @Post()
     async createOffer(@Body() createOfferDto: CreateOfferDto) {
         return generateResponse({
@@ -40,6 +43,7 @@ export class OfferController {
         });
     }
 
+    @UseGuards(PasswordGuard)
     @Delete('/:offerId')
     async deleteOffer(
         @Param('offerId', new ParseIntPipe()) offerId: number,
@@ -49,6 +53,7 @@ export class OfferController {
         return generateResponse({ok: deletionSuccess});
     }
 
+    @UseGuards(PasswordGuard)
     @Put('/:offerId')
     @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
     async updateOffer(
@@ -64,7 +69,12 @@ export class OfferController {
             categories: await this.offerService.getCategories(),
         });
     }
+    @Get('/category/:categoryId')
+    async getOffersByCategory(@Param('categoryId', new ParseIntPipe()) categoryId: number) {
+        return {data: await this.offerService.getOffersByCategory(categoryId)};
+    }
 
+    @UseGuards(PasswordGuard)
     @Post('/category')
     async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
         return generateResponse({
@@ -72,6 +82,7 @@ export class OfferController {
         });
     }
 
+    @UseGuards(PasswordGuard)
     @Delete('/category/:categoryId')
     async deleteCategory(@Param('categoryId', new ParseIntPipe()) categoryId: number) {
         const deletionSuccess = await this.offerService.deleteOfferCategory(categoryId);
@@ -79,6 +90,7 @@ export class OfferController {
         return generateResponse({ok: deletionSuccess});
     }
 
+    @UseGuards(PasswordGuard)
     @Put('/category/:categoryId')
     async updateCategory(
         @Param('categoryId', new ParseIntPipe()) categoryId: number,
@@ -97,6 +109,7 @@ export class OfferController {
         return generateResponse({previews});
     }
 
+    @UseGuards(PasswordGuard)
     @Delete('/preview/:previewId')
     async deleteCategoryPreview(
         @Param('previewId', new ParseIntPipe()) previewId: number,
@@ -106,6 +119,7 @@ export class OfferController {
         return generateResponse({});
     }
 
+    @UseGuards(PasswordGuard)
     @Put('/preview/:previewId')
     async updateCategoryPreview(
         @Param('previewId', new ParseIntPipe()) previewId: number,
@@ -119,6 +133,7 @@ export class OfferController {
         return generateResponse({preview});
     }
 
+    @UseGuards(PasswordGuard)
     @Put('/preview/:previewId/image')
     @UseInterceptors(
         FileInterceptor(
@@ -139,6 +154,7 @@ export class OfferController {
         });
     }
 
+    @UseGuards(PasswordGuard)
     @Post('preview')
     @UseInterceptors(
         FileInterceptor(

@@ -30,4 +30,6 @@ export class Offer {
     name: string;
     @Column()
     price: number;
+    @Column({nullable: true})
+    description: string;
 }

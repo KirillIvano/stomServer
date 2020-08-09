@@ -7,6 +7,9 @@ export class CreateOfferDto {
     price: number;
     @IsInt()
     categoryId: number;
+    @IsString()
+    @IsOptional()
+    description?: string;
 }
 
 export class UpdateOfferDto {
@@ -17,4 +20,8 @@ export class UpdateOfferDto {
     @IsNumber()
     @IsOptional()
     price?: number;
+
+    @IsString()
+    @IsOptional()
+    description?: string;
 }
